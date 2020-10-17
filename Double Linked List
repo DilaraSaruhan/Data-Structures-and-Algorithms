@@ -1,0 +1,153 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <conio.h>
+
+#define pushButton printf("Push the button to continue. \n"); getch()
+
+typedef struct community {
+	int data;
+	char message[100];
+	struct community *front;
+	struct community *sequel;
+}DLLIST;
+
+DLLIST *head=NULL, *tailer=NULL;
+
+DLLIST *search();
+DLLIST *clear(int);
+DLLIST *readKeyboard();
+void writeScreen(DLLIST *);
+
+main()
+{
+DLLIST *additive, *p;
+int data,result;
+char election;
+	
+   while(1) {
+     election=getchar();
+		switch(election) {
+			
+            case 'A': additive= readKeyboard();	
+			      if(additive!=NULL)
+				       add(additive);
+				  else
+				   	 puts("Out of memory!\n");
+				  break;
+			
+			case 'S': puts("Search:"); 
+			          scanf("%d", &data);
+			       p=search(data);
+			       if(p==NULL)
+			            puts("No results found!");
+			       else
+			             writeScreen(p);
+			       break;
+			       
+			case 'L': result=list();
+			      if(result==-1) 
+				     puts("Empty list!");
+				  break;   
+				  
+			case 'D': puts("Delete:");	
+			          scanf("%d",&data);    
+					p=clear(data);
+					if(p!=NULL)
+					      puts("Deleted!");
+					else
+						  puts("No results found!");
+					break; 	  
+					
+			case 'E': puts("Goodbye!");
+			          exit(0);
+			default:puts("False choice! \n");
+        }
+   }
+}
+			
+int add(DLLIST *p)
+{
+	if(head!=NULL){
+		tailer->sequel=p;
+		p->front=tailer;
+		tailer=p;
+		tailer->sequel=NULL;
+    }
+	else {
+		head=p;
+		tailer=p;
+		head->sequel=NULL;
+		head->front=NULL;
+    }
+ return 0;	
+}
+
+int list() {
+	DLLIST *q;
+	q=head;
+	if(q==NULL)
+	return -1;
+	
+	while(q) {
+		writeScreen(q);
+		q=q->sequel;
+		pushButton;
+	}
+ return 0;	
+}
+
+DLLIST *search(int searching) {
+	  DLLIST *q;
+	  q=head;
+	  while(q) {
+	  	if(searching==q->data)
+	  	      return q;
+	  	      q=q->sequel;
+	  }
+ return NULL;  
+}
+DLLIST *clear(int beDeleted){
+	DLLIST *q;
+	q=search(beDeleted);
+	if(q==NULL)
+	  return NULL;
+	  
+	if(head==q) {
+		if(head->sequel!=NULL) {
+			head=q->sequel;
+			head->front=NULL;
+		}
+		else{
+			head=NULL;
+			tailer=NULL;
+		}
+	}
+		else {
+		
+			q->front->sequel=q->sequel;
+			if(q==tailer)
+			tailer=tailer->front;
+			else
+			q->sequel->front=q->front;
+		}
+		free(q);
+		return q;
+	}  
+	
+void writeScreen (DLLIST *write) {
+	printf("Data: %d, Message: %s \n", write->data,write->message);
+}
+
+DLLIST *readKeyboard() {
+	   DLLIST *read;
+	   
+	   read=malloc(sizeof(DLLIST));
+	   if(read==NULL)
+	       return NULL;
+	       
+	   puts("Enter information:");
+	   scanf("%d",&(read->data));
+	   puts("Enter message:");
+	   scanf("%s",read->message);
+	   return read;    
+}
