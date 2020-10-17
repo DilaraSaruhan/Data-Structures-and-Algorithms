@@ -1,0 +1,168 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <conio.h>
+
+/*Listemdeki düğümlerin veri yapısını tanımlıyorum*/
+typedef struct community {
+	int data;
+	char message[100];
+	struct community *sequel;
+}LLIST;
+
+/*Listemin ilk ve son düğümlerini tutan işaretçileri*/
+LLIST *head=NULL, *tailer=NULL;
+
+/*Fonksiyon bildirimlerim*/
+LLIST *search(int);
+LLIST *clear(int);
+LLIST *readKeyboard();
+void writeScreen(LLIST *);
+
+/*Ana program*/
+main()
+{
+	LLIST *additive, *p;
+	int data,result;
+	char election;
+	
+	while(1) {
+		puts("\n Add \n List \n Search \n Delete \n Exit \n What is your choice?");
+		election=getchar();
+		
+		switch(election) {
+			
+            case 'A': additive=readKeyboard();	
+			      if(additive!=NULL)
+				       add(additive);
+				  else
+				   	 puts("Out of memory!\n");
+				  break;	
+				 
+			case 'L': result=list();
+			      if(result==-1) puts("Empty list!");
+				  break;
+				  
+			case 'S': puts("Search:"); 
+			          scanf("%d", &data);
+			       p=search(data);
+			       if(p==NULL)
+			            puts("No results found!");
+			       else
+			             writeScreen(p);
+			       break;
+				   
+			case 'D': puts("Delete:");	
+			          scanf("%d",&data);    
+					p=clear(data);
+					if(p!=NULL)
+					      puts("Deleted!");
+					else
+						  puts("No results found!");
+					break; 
+					
+			case 'E':
+			case 'e': puts("Goodbye!");
+			          exit(0);
+			default:puts("False choice! \n");		  			       
+				 			
+		} /*switch sonu*/
+	} /*while döngüsü sonu*/
+} /*main (ana program) sonu*/
+
+/*Listeye kayıt ekleme fonksiyonu*/
+int add(LLIST *p)
+{
+	if(head!=NULL){
+		tailer->sequel=p;
+		tailer=p;
+		tailer->sequel=NULL;
+	}
+	else {
+		head=p;
+		tailer=head;
+		head->sequel=NULL;
+	}
+ return 0;	
+}
+
+/*Listedeki tüm kayıtları listeleme fonksiyonu*/
+int list() {
+	LLIST *q;
+	q=head;
+	if(q==NULL)
+	return -1;
+	
+	while(q) {
+		writeScreen(q);
+		q=q->sequel;
+	}
+ return 0;	
+}
+
+/*Liste üzerinde bir kayıt arama fonksiyonu*/
+LLIST *search(int searching) {
+	  LLIST *q;
+	  q=head;
+	  while(q) {
+	  	if(q->data==searching)
+	  	      return q;
+	  	      q=q->sequel;
+	  }
+ return NULL;  
+}
+
+/*Listeden bir kayıt silme fonksiyonu*/
+LLIST *clear(int beDeleted){
+	LLIST *q, *oneBefore;
+	q=head;
+	oneBefore=NULL;
+	
+	while(q) {
+		if(beDeleted==q->data)
+		break;
+		
+		oneBefore=q;
+		q=q->sequel;
+	}
+	if(q!=NULL) {
+		if(oneBefore == NULL) {
+			if(head==tailer) {
+				head=NULL;
+				tailer=NULL;
+				
+			}
+			else
+			   head=head->sequel;
+		}
+		else {
+			oneBefore->sequel=q->sequel;
+			if(oneBefore->sequel==NULL)
+			   tailer=oneBefore;
+		}
+		free(q);
+		return q;	   
+	}
+	else
+	   return NULL;
+}
+
+/*Listeden bir kayıt bilgisini ekrana yazdıran fonksiyon*/
+void writeScreen (LLIST *write) {
+	printf("Data: %d, Message: %s \n", write->data,write->message);
+}
+
+/*Listeden bir kayıt bilgisini klavyeden okuyan dinamik olarak yerleştiren fonksiyon*/
+LLIST *readKeyboard() {
+	   LLIST *read;
+	   
+	   read=malloc(sizeof(LLIST));
+	   if(read==NULL)
+	       return NULL;
+	       
+	   puts("Enter information:");
+	   scanf("%d",&(read->data));
+	   puts("Enter message:");
+	   scanf("%s",read->message);
+	   return read;    
+}
+
